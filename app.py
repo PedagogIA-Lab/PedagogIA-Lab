@@ -4,23 +4,23 @@ import os
 # ── Configuración de página ──────────────────────────────────────────────────
 st.set_page_config(page_title="PedagogIA Lab", layout="centered")
 
-# ── Estilos CSS: Botones azules, texto blanco, horizontales y grandes ───────
+# ── Estilos CSS: Botones transparentes con borde y letra azul ───────────────
 st.markdown("""
     <style>
-    /* Estilo para los botones */
+    /* Estilo para los botones transparentes */
     div.stButton > button {
         height: 100px;
         width: 100%;
         font-size: 24px;
         font-weight: bold;
-        color: white !important;
-        background-color: #4F8EF7 !important;
-        border: 2px solid white !important;
+        color: #4F8EF7 !important;           /* Letra azul */
+        background-color: transparent !important; /* Fondo transparente */
+        border: 2px solid #4F8EF7 !important;     /* Borde azul */
         border-radius: 15px;
     }
     div.stButton > button:hover {
-        background-color: #3b7ad9 !important;
-        border-color: #e0e0e0 !important;
+        background-color: #4F8EF7 !important;    /* Fondo azul al pasar el ratón */
+        color: white !important;                /* Letra blanca al pasar el ratón */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -29,19 +29,18 @@ st.markdown("""
 if "step" not in st.session_state: st.session_state.step = "inicio"
 if "perfil" not in st.session_state: st.session_state.perfil = None
 
-# --- PANTALLA 1: INICIO (Horizontal y grande) ---
+# --- PANTALLA 1: INICIO ---
 if st.session_state.step == "inicio":
     if os.path.exists("logo.png"):
         c1, c2, c3 = st.columns([1, 2, 1])
         with c2:
             st.image("logo.png", width=300)
     
-    st.title("Bienvenido a PedagogIA Lab")
+    st.markdown("<h1 style='text-align: center;'>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
     st.write("---")
-    st.subheader("¿Por dónde quieres trabajar hoy?")
+    st.markdown("<h3 style='text-align: center;'>¿Por dónde quieres trabajar hoy?</h3>", unsafe_allow_html=True)
     st.write("") 
     
-    # Botones alineados horizontalmente
     col1, col2, col3 = st.columns(3)
     
     with col1:
