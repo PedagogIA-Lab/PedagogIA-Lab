@@ -1,5 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
+import os
 
 # ── Configuración de página ──────────────────────────────────────────────────
 st.set_page_config(
@@ -46,9 +47,13 @@ PERFIL_CONFIG = {
     "Colegio": {"icon": "🏢", "color": "#8E44AD", "bienvenida": "Soy **Atlas**. Analicemos tus datos institucionales.", "avatar": "🔷"},
 }
 
-# ── Sidebar ──────────────────────────────────────────────────────────────────
+# ── Sidebar con LOGO ──────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🧬 PedagogIA Lab")
+    if os.path.exists("logo.png"):
+        st.image("logo.png", use_container_width=True)
+    else:
+        st.markdown("### 🧬 PedagogIA Lab")
+    
     st.caption("Asistencia Educativa Inteligente")
     st.markdown("---")
 
@@ -74,8 +79,14 @@ if "active_profile" not in st.session_state or st.session_state.active_profile !
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# ── Header principal ─────────────────────────────────────────────────────────
-st.title(f"{config['icon']} {perfil}")
+# ── Header principal con LOGO ───────────────────────────────────────────────
+col1, col2 = st.columns([1, 4])
+with col1:
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=100)
+with col2:
+    st.title(f"{config['icon']} {perfil}")
+
 st.subheader(f"Asistente especializado: {'Leo' if perfil == 'Estudiante' else 'Clara' if perfil == 'Maestro' else 'Atlas'}")
 st.divider()
 
