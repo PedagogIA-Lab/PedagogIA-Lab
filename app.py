@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# ── Estilos CSS personalizados para un look profesional ──────────────────────
+# ── Estilos CSS personalizados ──────────────────────────────────────────────
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
@@ -27,27 +27,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ── API Key desde st.secrets ─────────────────────────────────────────────────
+# ── API Key ──────────────────────────────────────────────────────────────────
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 except KeyError:
     st.error("⚠️ No se encontró la API Key en los Secrets.")
     st.stop()
 
-# ── System Prompts y Configuración ───────────────────────────────────────────
+# ── System Prompts y Configuración (Nombres restaurados) ─────────────────────
 SYSTEM_PROMPTS = {
-    "Estudiante": "Eres Leo, tutor paciente de PedagogIA Lab. Guía mediante preguntas, nunca des la respuesta directa.",
-    "Maestro": "Eres Clara, mentora pedagógica. Experta en planeación, rúbricas y estrategias de enseñanza.",
+    "Estudiante": "Eres Sócrates, tutor paciente de PedagogIA Lab. Guía mediante preguntas, nunca des la respuesta directa.",
+    "Maestro": "Eres Minerva, mentora pedagógica. Experta en planeación, rúbricas y estrategias de enseñanza.",
     "Colegio": "Eres Atlas, asistente institucional. Analiza datos educativos y provee reportes ejecutivos."
 }
 
 PERFIL_CONFIG = {
-    "Estudiante": {"icon": "🎓", "color": "#4F8EF7", "bienvenida": "¡Hola! Soy **Leo**. ¿Qué estás estudiando hoy?", "avatar": "🦁"},
-    "Maestro": {"icon": "🏫", "color": "#2ECC71", "bienvenida": "Hola, soy **Clara**. ¿Qué vamos a planear hoy?", "avatar": "🌿"},
+    "Estudiante": {"icon": "🎓", "color": "#4F8EF7", "bienvenida": "¡Hola! Soy **Sócrates**. ¿Qué estás estudiando hoy?", "avatar": "🦁"},
+    "Maestro": {"icon": "🏫", "color": "#2ECC71", "bienvenida": "Hola, soy **Minerva**. ¿Qué vamos a planear hoy?", "avatar": "🌿"},
     "Colegio": {"icon": "🏢", "color": "#8E44AD", "bienvenida": "Soy **Atlas**. Analicemos tus datos institucionales.", "avatar": "🔷"},
 }
 
-# ── Sidebar con LOGO ──────────────────────────────────────────────────────────
+# ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     if os.path.exists("logo.png"):
         st.image("logo.png", use_container_width=True)
@@ -87,7 +87,9 @@ with col1:
 with col2:
     st.title(f"{config['icon']} {perfil}")
 
-st.subheader(f"Asistente especializado: {'Leo' if perfil == 'Estudiante' else 'Clara' if perfil == 'Maestro' else 'Atlas'}")
+# Identificación dinámica del asistente
+nombre_asistente = {'Estudiante': 'Sócrates', 'Maestro': 'Minerva', 'Colegio': 'Atlas'}[perfil]
+st.subheader(f"Asistente especializado: {nombre_asistente}")
 st.divider()
 
 # ── Chat ─────────────────────────────────────────────────────────────────────
