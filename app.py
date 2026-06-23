@@ -9,7 +9,7 @@ if "step" not in st.session_state: st.session_state.step = "inicio"
 if "perfil_usuario" not in st.session_state: st.session_state.perfil_usuario = None
 if "plan_seleccionado" not in st.session_state: st.session_state.plan_seleccionado = None
 if "precio_seleccionado" not in st.session_state: st.session_state.precio_seleccionado = None
-if "beneficios_plan" not in st.session_state: st.session_state.beneficios_plan = []
+if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None # Almacena todo el diccionario del plan
 
 # --- Definición Global de Datos ---
 def obtener_data_planes(perfil):
@@ -35,24 +35,18 @@ def obtener_data_planes(perfil):
 # --- Estilos CSS ---
 st.markdown("""
     <style>
-    .block-container { padding-top: 1rem !important; }
-    h1 { text-align: center; color: white; font-size: 2rem !important; }
-    div.stButton > button { width: 100% !important; height: 45px !important; }
-    .plan-card { background-color: #262730; padding: 20px; border-radius: 10px; border: 1px solid #444; }
+    .plan-card { background-color: #0e1117; padding: 25px; border-radius: 15px; border: 1px solid #333; }
+    h2 { margin-top: 0 !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
-    if os.path.exists("logo.png"):
-        _, c2, _ = st.columns([1.5, 1, 1.5]) 
-        with c2: st.image("logo.png", use_container_width=True)
     st.markdown("<h1>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
-    _, col_centro, _ = st.columns([1, 1.5, 1])
-    with col_centro:
-        if st.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
-        if st.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
-        if st.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "planes"; st.rerun()
+    c1, c2, c3 = st.columns(3)
+    if c1.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
+    if c2.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
+    if c3.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "planes"; st.rerun()
 
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
@@ -64,24 +58,21 @@ elif st.session_state.step == "planes":
     cols = st.columns(3)
     for i, (titulo, info) in enumerate(data.items()):
         with cols[i]:
-            st.markdown(f"### {titulo}")
+            st.subheader(titulo)
             p = info['a'] if is_anual else info['m']
-            st.markdown(f"**{p} MXN {'/año' if is_anual else '/mes'}**")
-            for b in info['b']: st.markdown(b)
+            st.write(f"**{p} MXN {'/año' if is_anual else '/mes'}**")
+            st.caption(info['e'])
+            for b in info['b']: st.write(b)
             if st.button("ELEGIR", key=titulo): 
                 st.session_state.plan_seleccionado = titulo
                 st.session_state.precio_seleccionado = f"{p} MXN {'/año' if is_anual else '/mes'}"
-                st.session_state.beneficios_plan = info['b']
+                st.session_state.info_plan_actual = info # Guardamos toda la info aquí
                 st.session_state.step = "pago"; st.rerun()
-    if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
 
 # --- 3. PANTALLA DE PAGO ---
 elif st.session_state.step == "pago":
     st.markdown("<h1>Configura tu plan</h1>", unsafe_allow_html=True)
-    # Seguridad: si no hay plan seleccionado, volver a planes
-    if not st.session_state.plan_seleccionado:
-        st.session_state.step = "planes"; st.rerun()
-        
+    
     c_izq, c_der = st.columns([1, 1])
     with c_izq:
         st.subheader("Método de pago")
@@ -89,14 +80,19 @@ elif st.session_state.step == "pago":
         c1, c2 = st.columns(2)
         c1.text_input("Fecha de caducidad")
         c2.text_input("Código de seguridad")
-        st.checkbox("Guardar datos para futuras compras")
         
     with c_der:
-        st.markdown(f'<div class="plan-card"><h3>{st.session_state.plan_seleccionado}</h3>', unsafe_allow_html=True)
-        # Verificación añadida para evitar el TypeError
-        if st.session_state.beneficios_plan:
-            for b in st.session_state.beneficios_plan: st.write(b)
-        st.markdown("</div>", unsafe_allow_html=True)
+        # Aquí se muestra la tarjeta con toda la info del plan
+        if st.session_state.info_plan_actual:
+            info = st.session_state.info_plan_actual
+            st.markdown(f'''
+            <div class="plan-card">
+                <h2>{st.session_state.plan_seleccionado}</h2>
+                <p><i>{info['e']}</i></p>
+            </div>''', unsafe_allow_html=True)
+            for b in info['b']: st.write(b)
+            
+        st.divider()
         st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
         if st.button("Suscribirme"): st.session_state.step = "chat"; st.rerun()
         
@@ -104,5 +100,4 @@ elif st.session_state.step == "pago":
 
 elif st.session_state.step == "chat":
     st.write("¡Bienvenido al chat!")
-    st.chat_input("Escribe tu pregunta...")
-    if st.button("Regresar"): st.session_state.step = "inicio"; st.rerun()
+    if st.button("Regresar al inicio"): st.session_state.step = "inicio"; st.rerun()
