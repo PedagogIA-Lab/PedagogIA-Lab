@@ -13,27 +13,40 @@ if "plan_actual" not in st.session_state: st.session_state.plan_actual = "Gratis
 # --- Estilos CSS ---
 st.markdown("""
     <style>
-    .stButton > button { width: 100%; border: 2px solid white; color: white; background: transparent; font-weight: bold; }
-    .stButton > button:hover { border-color: #87CEEB; color: #87CEEB; }
     h1, h3 { text-align: center; color: white; }
+    .big-button > button { 
+        width: 100% !important; 
+        height: 80px !important; 
+        font-size: 24px !important; 
+        margin-bottom: 20px !important;
+        border: 2px solid white !important; 
+        color: white !important; 
+        background: transparent !important; 
+        font-weight: bold !important;
+    }
+    .big-button > button:hover { border-color: #87CEEB !important; color: #87CEEB !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     if os.path.exists("logo.png"):
-        c1, c2, c3 = st.columns([1.5, 2, 1.5])
-        with c2: st.image("logo.png", use_container_width=True)
+        c_l1, c_l2, c_l3 = st.columns([1.5, 2, 1.5]) 
+        with c_l2: st.image("logo.png", use_container_width=True)
     
     st.markdown("<h1>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
     st.markdown("<h3>¿Por dónde quieres trabajar hoy?</h3>", unsafe_allow_html=True)
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
-    if col1.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
-    if col2.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
-    if col3.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "planes"; st.rerun()
+    # Botones verticales centrados
+    c_b1, c_b2, c_b3 = st.columns([1, 1.5, 1])
+    with c_b2:
+        st.markdown('<div class="big-button">', unsafe_allow_html=True)
+        if st.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
+        if st.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
+        if st.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "planes"; st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
@@ -41,7 +54,6 @@ elif st.session_state.step == "planes":
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
     is_anual = (periodo == "Anual")
     
-    # Base de datos completa con los textos desglosados paso a paso
     if st.session_state.perfil_usuario == "Estudiante":
         data = {
             "Explorador": {"precio": "0", "enfoque": "Para tareas y dudas rápidas.", "beneficios": ["Paso 1: Acceso inicial.", "Paso 2: 5 mensajes/día.", "Paso 3: Conceptos básicos."]},
