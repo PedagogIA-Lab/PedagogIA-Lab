@@ -37,6 +37,7 @@ elif st.session_state.step == "planes":
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
     is_anual = (periodo == "Anual")
     
+    # Definición corregida para evitar SyntaxError
     if st.session_state.perfil_usuario == "Estudiante":
         data = {
             "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas rápidas.", "b": ["✓ 5 mensajes/día", "✓ Acceso base"]},
@@ -49,7 +50,7 @@ elif st.session_state.step == "planes":
             "Pro": {"m": "$149", "a": "$1490", "e": "Optimización.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias"]},
             "Élite": {"m": "$299", "a": "$2990", "e": "Gestión integral.", "b": ["✓ Todo lo del Pro", "✓ Exámenes automáticos"]}
         }
-    else: # Colegio
+    else:
         data = {
             "Base": {"m": "$1,999", "a": "$19,190", "e": "Digitalización.", "b": ["10 docentes"]},
             "Pro": {"m": "$4,999", "a": "$47,990", "e": "Operativa.", "b": ["50 docentes"]},
@@ -61,35 +62,4 @@ elif st.session_state.step == "planes":
         with cols[i]:
             st.markdown(f"### {titulo}")
             p = info['a'] if is_anual else info['m']
-            st.markdown(f"{p} MXN {'/año' if is_anual and p != '$0' else '/mes' if p != '$0' else ''}")
-            if st.button("ELEGIR", key=titulo): 
-                st.session_state.plan_seleccionado = titulo
-                st.session_state.precio_seleccionado = f"{p} MXN"
-                st.session_state.step = "pago"; st.rerun()
-    if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
-
-# --- 3. PANTALLA DE PAGO ---
-elif st.session_state.step == "pago":
-    st.markdown("<h1>Configura tu plan</h1>", unsafe_allow_html=True)
-    col_izq, col_der = st.columns([1, 1])
-    
-    with col_izq:
-        st.subheader("Método de pago")
-        st.text_input("Número de tarjeta")
-        c1, c2 = st.columns(2)
-        c1.text_input("Caducidad")
-        c2.text_input("CVV")
-        st.checkbox("Guardar datos para futuras compras")
-        
-    with col_der:
-        st.subheader(f"Resumen: Plan {st.session_state.plan_seleccionado}")
-        st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
-        if st.button("Suscribirme"):
-            st.success("¡Suscripción exitosa!")
-            st.session_state.step = "chat"
-            st.rerun()
-    if st.button("← Volver a planes"): st.session_state.step = "planes"; st.rerun()
-
-elif st.session_state.step == "chat":
-    st.write("¡Bienvenido al chat!")
-    if st.button("Regresar"): st.session_state.step = "inicio"; st.rerun()
+            st.markdown(f"{p} MXN
