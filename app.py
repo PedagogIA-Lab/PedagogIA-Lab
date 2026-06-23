@@ -9,27 +9,27 @@ if "step" not in st.session_state: st.session_state.step = "inicio"
 if "perfil_usuario" not in st.session_state: st.session_state.perfil_usuario = None
 if "plan_seleccionado" not in st.session_state: st.session_state.plan_seleccionado = None
 if "precio_seleccionado" not in st.session_state: st.session_state.precio_seleccionado = None
-if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None # Almacena todo el diccionario del plan
+if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None
 
-# --- Definición Global de Datos ---
+# --- Definición Global de Datos (Actualizada con todas las características) ---
 def obtener_data_planes(perfil):
     if perfil == "Estudiante":
         return {
-            "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas rápidas.", "b": ["✓ 5 mensajes diarios", "✓ Acceso base"]},
-            "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos", "✓ Memoria de contexto"]},
-            "Élite": {"m": "$199", "a": "$1990", "e": "Alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis ILIMITADO", "✓ Reportes semanales"]}
+            "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas y dudas rápidas.", "b": ["✓ 5 mensajes diarios con Sócrates", "✓ Acceso al modelo base", "✓ Soporte para conceptos generales"]},
+            "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal, siempre disponible.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos (Hasta 5 fotos/día)", "✓ Memoria de contexto", "✓ Respuestas más detalladas"]},
+            "Élite": {"m": "$199", "a": "$1990", "e": "Preparación académica de alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis ILIMITADO", "✓ Generación de cuestionarios y resúmenes", "✓ Reporte semanal de temas reforzados", "✓ Funciones experimentales"]}
         }
     elif perfil == "Maestro":
         return {
-            "Base": {"m": "$0", "a": "$0", "e": "Para probar Minerva.", "b": ["✓ 5 mensajes diarios", "✓ Planeaciones simples"]},
-            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias didácticas", "✓ Rúbricas"]},
-            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión integral.", "b": ["✓ Todo lo del Pro", "✓ Exámenes automáticos", "✓ Materiales didácticos"]}
+            "Base": {"m": "$0", "a": "$0", "e": "Para probar la capacidad de Minerva.", "b": ["✓ 5 mensajes diarios con Minerva", "✓ Generación de planeaciones simples", "✓ Acceso a conceptos pedagógicos básicos"]},
+            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización de tiempo en planeación diaria.", "b": ["✓ Mensajes Ilimitados", "✓ Creación de secuencias didácticas completas", "✓ Rúbricas de evaluación personalizables", "✓ Adaptación de contenidos"]},
+            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión pedagógica integral y alto rendimiento.", "b": ["✓ Todo lo del Pro", "✓ Exámenes y cuestionarios automáticos", "✓ Materiales didácticos (tablas, cronogramas)", "✓ Análisis de retroalimentación", "✓ Soporte prioritario"]}
         }
     else:
         return {
-            "Atlas Base": {"m": "$1,999", "a": "$19,190", "e": "Estandarización.", "b": ["✓ 10 docentes", "✓ Panel admin"]},
-            "Atlas Pro": {"m": "$4,999", "a": "$47,990", "e": "Escalabilidad.", "b": ["✓ 50 docentes", "✓ Métricas"]},
-            "Atlas Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación.", "b": ["✓ Docentes ilimitados", "✓ Integración LMS"]}
+            "Atlas Base": {"m": "$1,999", "a": "$19,190", "e": "Implementación de la suite en hasta 10 docentes.", "b": ["✓ Estandarización de procesos de planeación", "✓ Panel administrativo de actividad"]},
+            "Atlas Pro": {"m": "$4,999", "a": "$47,990", "e": "Escala hasta 50 docentes con métricas.", "b": ["✓ Dashboard de desempeño", "✓ Biblioteca institucional compartida", "✓ Soporte técnico dedicado"]},
+            "Atlas Élite": {"m": "$9,999", "a": "$95,990", "e": "Gestión integral y alto impacto.", "b": ["✓ Docentes ilimitados", "✓ White Label personalizado", "✓ Integración LMS/ERP", "✓ Capacitación certificada", "✓ Analítica avanzada"]}
         }
 
 # --- Estilos CSS ---
@@ -42,11 +42,15 @@ st.markdown("""
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
+    if os.path.exists("logo.png"):
+        _, c2, _ = st.columns([1, 2, 1]) 
+        with c2: st.image("logo.png", use_container_width=True)
     st.markdown("<h1>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    if c1.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
-    if c2.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
-    if c3.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "planes"; st.rerun()
+    _, col_centro, _ = st.columns([1, 2, 1])
+    with col_centro:
+        if st.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
+        if st.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
+        if st.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "planes"; st.rerun()
 
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
@@ -66,13 +70,13 @@ elif st.session_state.step == "planes":
             if st.button("ELEGIR", key=titulo): 
                 st.session_state.plan_seleccionado = titulo
                 st.session_state.precio_seleccionado = f"{p} MXN {'/año' if is_anual else '/mes'}"
-                st.session_state.info_plan_actual = info # Guardamos toda la info aquí
+                st.session_state.info_plan_actual = info
                 st.session_state.step = "pago"; st.rerun()
+    if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
 
 # --- 3. PANTALLA DE PAGO ---
 elif st.session_state.step == "pago":
     st.markdown("<h1>Configura tu plan</h1>", unsafe_allow_html=True)
-    
     c_izq, c_der = st.columns([1, 1])
     with c_izq:
         st.subheader("Método de pago")
@@ -82,7 +86,6 @@ elif st.session_state.step == "pago":
         c2.text_input("Código de seguridad")
         
     with c_der:
-        # Aquí se muestra la tarjeta con toda la info del plan
         if st.session_state.info_plan_actual:
             info = st.session_state.info_plan_actual
             st.markdown(f'''
