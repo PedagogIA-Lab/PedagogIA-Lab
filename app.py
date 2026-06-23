@@ -9,10 +9,9 @@ if "step" not in st.session_state: st.session_state.step = "inicio"
 if "perfil_usuario" not in st.session_state: st.session_state.perfil_usuario = None
 if "plan_seleccionado" not in st.session_state: st.session_state.plan_seleccionado = None
 if "precio_seleccionado" not in st.session_state: st.session_state.precio_seleccionado = None
-# Nueva variable para guardar los beneficios del plan elegido
-if "beneficios_plan" not in st.session_state: st.session_state.beneficios_plan = None
+if "beneficios_plan" not in st.session_state: st.session_state.beneficios_plan = []
 
-# --- Definición Global de Datos (para uso en planes y pago) ---
+# --- Definición Global de Datos ---
 def obtener_data_planes(perfil):
     if perfil == "Estudiante":
         return {
@@ -79,8 +78,11 @@ elif st.session_state.step == "planes":
 # --- 3. PANTALLA DE PAGO ---
 elif st.session_state.step == "pago":
     st.markdown("<h1>Configura tu plan</h1>", unsafe_allow_html=True)
+    # Seguridad: si no hay plan seleccionado, volver a planes
+    if not st.session_state.plan_seleccionado:
+        st.session_state.step = "planes"; st.rerun()
+        
     c_izq, c_der = st.columns([1, 1])
-    
     with c_izq:
         st.subheader("Método de pago")
         st.text_input("Número de tarjeta")
@@ -91,7 +93,9 @@ elif st.session_state.step == "pago":
         
     with c_der:
         st.markdown(f'<div class="plan-card"><h3>{st.session_state.plan_seleccionado}</h3>', unsafe_allow_html=True)
-        for b in st.session_state.beneficios_plan: st.write(b)
+        # Verificación añadida para evitar el TypeError
+        if st.session_state.beneficios_plan:
+            for b in st.session_state.beneficios_plan: st.write(b)
         st.markdown("</div>", unsafe_allow_html=True)
         st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
         if st.button("Suscribirme"): st.session_state.step = "chat"; st.rerun()
