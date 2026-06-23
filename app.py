@@ -40,29 +40,26 @@ if st.session_state.step == "inicio":
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
     st.markdown(f"<h1>Planes para {st.session_state.perfil_usuario}</h1>", unsafe_allow_html=True)
-    
-    # Selector de facturación
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
     is_anual = (periodo == "Anual")
     
-    # Definición de datos
     if st.session_state.perfil_usuario == "Estudiante":
         data = {
-            "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas rápidas.", "b": ["✓ 5 mensajes/día", "✓ Acceso base"]},
-            "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis archivos"]},
-            "Élite": {"m": "$199", "a": "$1990", "e": "Alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis ILIMITADO"]}
+            "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas y dudas rápidas.", "b": ["✓ 5 mensajes diarios con Sócrates", "✓ Acceso al modelo base", "✓ Soporte para conceptos generales"]},
+            "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal, siempre disponible.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos (5 fotos/día)", "✓ Memoria de contexto", "✓ Respuestas detalladas"]},
+            "Élite": {"m": "$199", "a": "$1990", "e": "Preparación académica de alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis de archivos ILIMITADO", "✓ Generación de cuestionarios y resúmenes", "✓ Reporte semanal", "✓ Funciones experimentales"]}
         }
     elif st.session_state.perfil_usuario == "Maestro":
         data = {
-            "Base": {"m": "$0", "a": "$0", "e": "Probar Minerva.", "b": ["✓ 5 mensajes/día", "✓ Planeaciones simples"]},
-            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias"]},
-            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión integral.", "b": ["✓ Todo lo del Pro", "✓ Exámenes automáticos"]}
+            "Base": {"m": "$0", "a": "$0", "e": "Para probar la capacidad de Minerva.", "b": ["✓ 5 mensajes diarios con Minerva", "✓ Planeaciones simples", "✓ Conceptos pedagógicos básicos"]},
+            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización de tiempo en planeación diaria.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias didácticas completas", "✓ Rúbricas personalizables", "✓ Adaptación de contenidos"]},
+            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión pedagógica integral y alto rendimiento.", "b": ["✓ Todo lo del Pro", "✓ Exámenes automáticos (con respuestas)", "✓ Materiales didácticos (tablas, listas)", "✓ Retroalimentación alumnos", "✓ Soporte prioritario"]}
         }
-    else:
+    else: # Colegio
         data = {
-            "Base": {"m": "$1,999", "a": "$19,190", "e": "Digitalización.", "b": ["10 docentes", "Panel básico"]},
-            "Pro": {"m": "$4,999", "a": "$47,990", "e": "Operativa.", "b": ["50 docentes", "Métricas"]},
-            "Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación.", "b": ["Docentes ilimitados", "Onboarding"]}
+            "Atlas Base": {"m": "$1,999", "a": "$19,190", "e": "Estandarización y control.", "b": ["✓ Hasta 10 docentes", "✓ Estandarización de procesos", "✓ Panel administrativo"]},
+            "Atlas Pro": {"m": "$4,999", "a": "$47,990", "e": "Escalabilidad y métricas.", "b": ["✓ Hasta 50 docentes", "✓ Dashboard de métricas", "✓ Biblioteca institucional", "✓ Soporte dedicado"]},
+            "Atlas Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación institucional total.", "b": ["✓ Docentes ilimitados", "✓ White Label (identidad visual)", "✓ Integración LMS/ERP", "✓ Capacitación certificada", "✓ Analítica avanzada"]}
         }
 
     cols = st.columns(3)
@@ -70,7 +67,7 @@ elif st.session_state.step == "planes":
         with cols[i]:
             st.markdown(f"### {titulo}")
             p = info['a'] if is_anual else info['m']
-            st.markdown(f"{p} MXN {'/año' if is_anual and p != '$0' else '/mes' if p != '$0' else ''}")
+            st.markdown(f"**{p} MXN** {'/año' if is_anual else '/mes'}")
             st.caption(info['e'])
             for b in info['b']: st.markdown(b)
             
@@ -86,7 +83,6 @@ elif st.session_state.step == "planes":
 elif st.session_state.step == "pago":
     st.markdown("<h1>Configura tu plan</h1>", unsafe_allow_html=True)
     col_izq, col_der = st.columns([1, 1])
-    
     with col_izq:
         st.subheader("Método de pago")
         st.text_input("Número de tarjeta")
@@ -94,15 +90,13 @@ elif st.session_state.step == "pago":
         c1.text_input("Fecha de caducidad")
         c2.text_input("Código de seguridad")
         st.checkbox("Guardar datos para futuras compras")
-        
     with col_der:
         st.subheader(f"Resumen: Plan {st.session_state.plan_seleccionado}")
-        st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
+        st.metric("Importe a pagar", st.session_state.precio_seleccionado)
         if st.button("Suscribirme"):
             st.success("¡Suscripción exitosa!")
             st.session_state.step = "chat"
             st.rerun()
-            
     if st.button("← Volver a planes"): st.session_state.step = "planes"; st.rerun()
 
 elif st.session_state.step == "chat":
