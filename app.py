@@ -63,7 +63,9 @@ elif st.session_state.step == "planes":
         with cols[i]:
             st.markdown(f"### {titulo}")
             p = info['a'] if is_anual else info['m']
-            st.markdown(f"**{p} MXN {'/año' if is_anual and p != '$0' else '/mes' if p != '$0' else ''}**")
+            # CORRECCIÓN AQUÍ: Eliminamos los ** y estandarizamos el formato
+            suffix = "/año" if is_anual and p != "$0" else "/mes" if p != "$0" else ""
+            st.markdown(f"{p} MXN {suffix}")
             st.caption(info['e'])
             for b in info['b']: st.markdown(b)
             if st.button("ELEGIR", key=titulo): st.session_state.step = "chat"; st.rerun()
