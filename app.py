@@ -41,20 +41,24 @@ st.markdown("""
     .plan-card { background-color: #0e1117; padding: 25px; border-radius: 15px; border: 1px solid #333; }
     h2 { margin-top: 0 !important; }
     .stButton>button { width: 100%; }
+    .stLinkButton>a { width: 100%; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER: Botones de acceso ---
+# --- HEADER: Botones de acceso mejorados ---
 if not st.session_state.usuario_registrado:
     _, col_btn = st.columns([10, 2])
     with col_btn:
         with st.popover("Acceder", help="Iniciar sesión o registrarse"):
             st.markdown("### Iniciar sesión o registrarse")
-            st.button("Continuar con Google")
-            st.button("Continuar con Apple")
+            # Botones de redirección externa
+            st.link_button("Continuar con Google", "https://accounts.google.com")
+            st.link_button("Continuar con Apple", "https://appleid.apple.com")
+            st.link_button("Continuar con teléfono", "https://accounts.google.com/signin/v2/usernamerecovery")
+            
             st.write("---")
             st.text_input("Correo electrónico")
-            if st.button("Continuar"):
+            if st.button("Continuar con correo"):
                 st.session_state.usuario_registrado = True
                 st.rerun()
 
@@ -104,18 +108,16 @@ elif st.session_state.step == "pago":
         c1.text_input("Fecha de caducidad")
         c2.text_input("Código de seguridad")
         st.divider()
-        
-        # Lógica de Renovación Automática
         if st.session_state.es_anual:
             fecha_next = (datetime.now() + timedelta(days=365)).strftime("%d de %B de %Y")
             auto_renew = st.checkbox("Activar renovación automática anual", value=True)
             if auto_renew:
                 st.success(f"Tu suscripción se renovará automáticamente el {fecha_next}.")
             else:
-                st.warning("La renovación automática está desactivada. Deberás renovar manualmente el año próximo.")
+                st.warning("La renovación automática está desactivada.")
         else:
             fecha_next = (datetime.now() + timedelta(days=30)).strftime("%d de %B de %Y")
-            st.info(f"Tu suscripción mensual se renovará automáticamente el {fecha_next}. Puedes cancelar en cualquier momento.")
+            st.info(f"Tu suscripción mensual se renovará automáticamente el {fecha_next}.")
 
     with c_der:
         if st.session_state.info_plan_actual:
