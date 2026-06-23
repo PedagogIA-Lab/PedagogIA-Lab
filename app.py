@@ -47,4 +47,28 @@ elif st.session_state.step == "planes":
         data = {
             "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas y dudas rápidas.", "b": ["✓ 5 mensajes diarios con Sócrates", "✓ Acceso al modelo base", "✓ Soporte para conceptos generales"]},
             "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal, siempre disponible.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos (5 fotos/día)", "✓ Memoria de contexto", "✓ Respuestas detalladas"]},
-            "Élite": {"m": "$199", "a": "$1990", "e": "Prepar
+            "Élite": {"m": "$199", "a": "$1990", "e": "Preparación académica de alto nivel.", "b": ["✓ Todo lo del Plan Pro", "✓ Análisis de archivos ILIMITADO", "✓ Generación de cuestionarios y resúmenes", "✓ Reporte semanal de temas", "✓ Funciones experimentales"]}
+        }
+    elif st.session_state.perfil_usuario == "Maestro":
+        data = {
+            "Base": {"m": "$0", "a": "$0", "e": "Para probar la capacidad de Minerva.", "b": ["✓ 5 mensajes diarios con Minerva", "✓ Generación de planeaciones simples", "✓ Conceptos pedagógicos básicos"]},
+            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización de tiempo en planeación diaria.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias didácticas completas", "✓ Rúbricas de evaluación personalizables", "✓ Adaptación de contenidos"]},
+            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión pedagógica integral.", "b": ["✓ Todo lo del Plan Pro", "✓ Exámenes y cuestionarios automáticos", "✓ Materiales didácticos (tablas, listas)", "✓ Análisis de retroalimentación", "✓ Soporte prioritario"]}
+        }
+    else:
+        data = {"Base": {"m": "$1,999", "a": "$19,190", "e": "Digitalización.", "b": ["10 docentes", "Panel básico"]}, "Pro": {"m": "$4,999", "a": "$47,990", "e": "Operativa.", "b": ["50 docentes", "Métricas"]}, "Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación.", "b": ["Docentes ilimitados", "Onboarding"]}}
+
+    cols = st.columns(3)
+    for i, (titulo, info) in enumerate(data.items()):
+        with cols[i]:
+            st.markdown(f"### {titulo}")
+            p = info['a'] if is_anual else info['m']
+            st.markdown(f"**{p} MXN {'/año' if is_anual and p != '$0' else '/mes' if p != '$0' else ''}**")
+            st.caption(info['e'])
+            for b in info['b']: st.markdown(b)
+            if st.button("ELEGIR", key=titulo): st.session_state.step = "chat"; st.rerun()
+    if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
+
+elif st.session_state.step == "chat":
+    st.chat_input("Escribe tu pregunta...")
+    if st.button("Regresar"): st.session_state.step = "inicio"; st.rerun()
