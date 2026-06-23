@@ -10,6 +10,7 @@ if "perfil_usuario" not in st.session_state: st.session_state.perfil_usuario = N
 if "plan_seleccionado" not in st.session_state: st.session_state.plan_seleccionado = None
 if "precio_seleccionado" not in st.session_state: st.session_state.precio_seleccionado = None
 if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None
+if "usuario_registrado" not in st.session_state: st.session_state.usuario_registrado = False
 
 # --- Definición Global de Datos ---
 def obtener_data_planes(perfil):
@@ -37,12 +38,28 @@ st.markdown("""
     <style>
     .plan-card { background-color: #0e1117; padding: 25px; border-radius: 15px; border: 1px solid #333; }
     h2 { margin-top: 0 !important; }
+    .stButton>button { width: 100%; }
     </style>
 """, unsafe_allow_html=True)
 
+# --- HEADER: Botones de acceso (Flotantes arriba a la derecha) ---
+if not st.session_state.usuario_registrado:
+    _, col_btn = st.columns([10, 2])
+    with col_btn:
+        with st.popover("Acceder", help="Iniciar sesión o registrarse"):
+            st.markdown("### Iniciar sesión o registrarse")
+            st.caption("Obtendrás respuestas más inteligentes y podrás cargar archivos, imágenes y mucho más.")
+            st.button("Continuar con Google")
+            st.button("Continuar con Apple")
+            st.button("Continuar con teléfono")
+            st.write("---")
+            st.text_input("Dirección de correo electrónico", placeholder="correo@ejemplo.com")
+            if st.button("Continuar"):
+                st.session_state.usuario_registrado = True
+                st.rerun()
+
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
-    # Logo más pequeño centrado
     if os.path.exists("logo.png"):
         _, c2, _ = st.columns([2, 1, 2]) 
         with c2: st.image("logo.png", width=200) 
@@ -101,10 +118,14 @@ elif st.session_state.step == "pago":
             
         st.divider()
         st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
-        if st.button("Suscribirme"): st.session_state.step = "chat"; st.rerun()
+        if st.button("Suscribirme"): 
+            st.session_state.usuario_registrado = True
+            st.session_state.step = "chat"; st.rerun()
         
     if st.button("← Volver a planes"): st.session_state.step = "planes"; st.rerun()
 
 elif st.session_state.step == "chat":
-    st.write("¡Bienvenido al chat!")
-    if st.button("Regresar al inicio"): st.session_state.step = "inicio"; st.rerun()
+    st.write("¡Bienvenido a tu área de trabajo!")
+    if st.button("Cerrar sesión"): 
+        st.session_state.usuario_registrado = False
+        st.session_state.step = "inicio"; st.rerun()
