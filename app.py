@@ -8,14 +8,31 @@ st.set_page_config(page_title="PedagogIA Lab", layout="centered")
 if "step" not in st.session_state: st.session_state.step = "inicio"
 if "perfil_usuario" not in st.session_state: st.session_state.perfil_usuario = None
 
-# --- Estilos CSS ---
+# --- Estilos CSS (Tamaños aumentados para máxima legibilidad) ---
 st.markdown("""
     <style>
-    .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-    h1 { text-align: center; color: white; font-size: 1.8rem !important; margin-bottom: 0.5rem !important; }
-    h3 { text-align: center; color: #E0E0E0; font-size: 1rem !important; margin-bottom: 0.5rem !important; }
-    .stMarkdown p { font-size: 0.85rem !important; }
-    div.stButton > button { width: 100% !important; height: 40px !important; font-size: 14px !important; }
+    /* Aumentamos el tamaño base de todo el texto */
+    .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    
+    /* Títulos grandes */
+    h1 { text-align: center; color: white; font-size: 3.5rem !important; margin-bottom: 1.5rem !important; }
+    h3 { text-align: center; color: #E0E0E0; font-size: 2rem !important; margin-bottom: 1rem !important; }
+    
+    /* Texto general y listas de beneficios */
+    .stMarkdown, .stMarkdown p, li { font-size: 1.4rem !important; line-height: 1.8 !important; }
+    
+    /* Botones grandes y fáciles de presionar */
+    div.stButton > button { 
+        width: 100% !important; 
+        height: 80px !important; 
+        font-size: 24px !important; 
+        font-weight: 700 !important; 
+        border-radius: 12px !important; 
+        border: 3px solid #87CEEB !important; 
+    }
+    
+    /* Ajuste para el radio button de facturación */
+    div[data-testid="stRadio"] label { font-size: 1.5rem !important; }
     </style>
 """, unsafe_allow_html=True)
 
