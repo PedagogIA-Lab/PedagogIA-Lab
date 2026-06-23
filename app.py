@@ -1,70 +1,68 @@
 import streamlit as st
+import os
 
-# ── Configuración de página ──────────────────────────────────────────────────
+# ── Configuración inicial ──────────────────────────────────────────────────
 st.set_page_config(page_title="PedagogIA Lab", layout="centered")
 
-# --- LÓGICA DE SUSCRIPCIÓN Y MENSAJES ---
+# --- Inicialización de variables ---
+if "step" not in st.session_state: st.session_state.step = "inicio"
 if "mensajes_usados" not in st.session_state: st.session_state.mensajes_usados = 0
 if "plan_actual" not in st.session_state: st.session_state.plan_actual = "Gratis"
-if "periodo" not in st.session_state: st.session_state.periodo = "Mensual" # O 'Anual'
 
-# --- CSS PARA ESTILOS BLANCO Y AZUL CIELO ---
+# --- Estilos CSS (Blanco, Azul cielo, Alineado) ---
 st.markdown("""
     <style>
     .stButton > button {
-        width: 100%; border: 2px solid white; color: white;
-        background: transparent; text-transform: uppercase;
+        height: 100px; width: 100%; font-size: 20px; font-weight: bold;
+        text-transform: uppercase; color: white !important;
+        background-color: transparent !important; 
+        border: 2px solid white !important; border-radius: 10px;
+        transition: all 0.3s ease;
     }
-    .stButton > button:hover { border-color: #87CEEB; color: #87CEEB; }
+    .stButton > button:hover {
+        background-color: #87CEEB !important; border-color: #87CEEB !important;
+    }
+    h1, h3 { text-align: center; color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- PANTALLA DE SELECCIÓN DE PLANES ---
-def mostrar_planes():
-    st.markdown("<h1 style='text-align: center;'>Elige tu Plan</h1>", unsafe_allow_html=True)
+# --- FLUJO DE PANTALLAS ---
+
+# 1. PANTALLA DE INICIO (Con tu logo y botones)
+if st.session_state.step == "inicio":
+    if os.path.exists("logo.png"):
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c2: st.image("logo.png")
     
-    # Selector de Periodo
+    st.markdown("<h1>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
+    st.markdown("<h3>¿Por dónde quieres trabajar hoy?</h3>", unsafe_allow_html=True)
+    st.write("---")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("Estudiante"): st.session_state.step = "planes"; st.rerun()
+    with col2:
+        if st.button("Maestro"): st.session_state.step = "planes"; st.rerun()
+    with col3:
+        if st.button("Colegio"): st.session_state.step = "planes"; st.rerun()
+
+# 2. PANTALLA DE PLANES (Solo cuando el usuario necesita elegir)
+elif st.session_state.step == "planes":
+    st.markdown("<h1>Elige tu Plan</h1>", unsafe_allow_html=True)
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
-    st.session_state.periodo = periodo
     
-    # Precios basados en periodo
-    precios = {"Mensual": {"EstuPro": 99, "EstuElite": 199, "MaesPro": 149, "MaesElite": 299},
-               "Anual": {"EstuPro": 990, "EstuElite": 1990, "MaesPro": 1490, "MaesElite": 2990}}
-    p = precios[periodo]
+    # Aquí iría tu estructura de columnas con los planes (Gratis, Pro, Élite)
+    # ... (Puedes poner aquí el código de columnas que definimos antes) ...
+    
+    if st.button("Regresar al Inicio"): st.session_state.step = "inicio"; st.rerun()
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.subheader("Gratis")
-        st.write(f"$0 MXN / {periodo}")
-        st.write("• 5 mensajes diarios")
-        if st.button("ELEGIR GRATIS"): st.session_state.plan_actual = "Gratis"; st.rerun()
-        
-    with c2:
-        st.subheader("Pro")
-        st.write(f"${p['EstuPro']} MXN / {periodo}")
-        st.write("• Mensajes Ilimitados\n• Análisis de archivos")
-        if st.button("ELEGIR PRO"): st.session_state.plan_actual = "Pro"; st.rerun()
-        
-    with c3:
-        st.subheader("Élite")
-        st.write(f"${p['EstuElite']} MXN / {periodo}")
-        st.write("• Todo lo Pro\n• Quizzes y Reportes\n• Soporte Prioritario")
-        if st.button("ELEGIR ÉLITE"): st.session_state.plan_actual = "Élite"; st.rerun()
-
-# --- LÓGICA DEL CHAT Y BLOQUEO ---
-def ejecutar_chat():
+# 3. PANTALLA DE CHAT (Lógica de bloqueo)
+elif st.session_state.step == "chat":
     if st.session_state.plan_actual == "Gratis" and st.session_state.mensajes_usados >= 5:
-        st.warning("⚠️ Has alcanzado tu límite diario de 5 mensajes.")
-        st.error("Suscríbete a un plan Pro o Élite para continuar sin límites.")
-        if st.button("VER PLANES"): st.session_state.plan_actual = None; st.rerun()
+        st.error("Has alcanzado tu límite de 5 mensajes. ¡Suscríbete para continuar!")
+        if st.button("VER PLANES"): st.session_state.step = "planes"; st.rerun()
     else:
         user_input = st.chat_input("Escribe tu pregunta...")
         if user_input:
             st.session_state.mensajes_usados += 1
             st.write(f"Respuesta de IA ({st.session_state.mensajes_usados}/5)")
-
-# --- FLUJO PRINCIPAL ---
-if st.session_state.plan_actual is None:
-    mostrar_planes()
-else:
-    ejecutar_chat()
