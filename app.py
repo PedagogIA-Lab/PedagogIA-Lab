@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from datetime import datetime, timedelta
 
 # ── Configuración de página ──────────────────────────────────────────────────
 st.set_page_config(page_title="PedagogIA Lab", layout="wide")
@@ -11,6 +12,7 @@ if "plan_seleccionado" not in st.session_state: st.session_state.plan_selecciona
 if "precio_seleccionado" not in st.session_state: st.session_state.precio_seleccionado = None
 if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None
 if "usuario_registrado" not in st.session_state: st.session_state.usuario_registrado = False
+if "es_anual" not in st.session_state: st.session_state.es_anual = False
 
 # --- Definición Global de Datos ---
 def obtener_data_planes(perfil):
@@ -42,18 +44,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER: Botones de acceso (Flotantes arriba a la derecha) ---
+# --- HEADER: Botones de acceso ---
 if not st.session_state.usuario_registrado:
     _, col_btn = st.columns([10, 2])
     with col_btn:
         with st.popover("Acceder", help="Iniciar sesión o registrarse"):
             st.markdown("### Iniciar sesión o registrarse")
-            st.caption("Obtendrás respuestas más inteligentes y podrás cargar archivos, imágenes y mucho más.")
             st.button("Continuar con Google")
             st.button("Continuar con Apple")
-            st.button("Continuar con teléfono")
             st.write("---")
-            st.text_input("Dirección de correo electrónico", placeholder="correo@ejemplo.com")
+            st.text_input("Correo electrónico")
             if st.button("Continuar"):
                 st.session_state.usuario_registrado = True
                 st.rerun()
@@ -63,10 +63,8 @@ if st.session_state.step == "inicio":
     if os.path.exists("logo.png"):
         _, c2, _ = st.columns([2, 1, 2]) 
         with c2: st.image("logo.png", width=200) 
-        
     st.markdown("<h1 style='text-align: center;'>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>¿Por dónde quieres empezar hoy?</h3>", unsafe_allow_html=True)
-    
     _, col_centro, _ = st.columns([1, 1.5, 1])
     with col_centro:
         if st.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
@@ -77,20 +75,20 @@ if st.session_state.step == "inicio":
 elif st.session_state.step == "planes":
     st.markdown(f"<h1>Planes para {st.session_state.perfil_usuario}</h1>", unsafe_allow_html=True)
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
-    is_anual = (periodo == "Anual")
+    st.session_state.es_anual = (periodo == "Anual")
     data = obtener_data_planes(st.session_state.perfil_usuario)
 
     cols = st.columns(3)
     for i, (titulo, info) in enumerate(data.items()):
         with cols[i]:
             st.subheader(titulo)
-            p = info['a'] if is_anual else info['m']
-            st.write(f"**{p} MXN {'/año' if is_anual else '/mes'}**")
+            p = info['a'] if st.session_state.es_anual else info['m']
+            st.write(f"**{p} MXN {'/año' if st.session_state.es_anual else '/mes'}**")
             st.caption(info['e'])
             for b in info['b']: st.write(b)
             if st.button("ELEGIR", key=titulo): 
                 st.session_state.plan_seleccionado = titulo
-                st.session_state.precio_seleccionado = f"{p} MXN {'/año' if is_anual else '/mes'}"
+                st.session_state.precio_seleccionado = f"{p} MXN {'/año' if st.session_state.es_anual else '/mes'}"
                 st.session_state.info_plan_actual = info
                 st.session_state.step = "pago"; st.rerun()
     if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
@@ -105,18 +103,24 @@ elif st.session_state.step == "pago":
         c1, c2 = st.columns(2)
         c1.text_input("Fecha de caducidad")
         c2.text_input("Código de seguridad")
+        st.divider()
         
+        # Lógica de Renovación Automática
+        if st.session_state.es_anual:
+            fecha_next = (datetime.now() + timedelta(days=365)).strftime("%d de %B de %Y")
+            auto_renew = st.checkbox("Activar renovación automática anual", value=True)
+            if auto_renew:
+                st.success(f"Tu suscripción se renovará automáticamente el {fecha_next}.")
+            else:
+                st.warning("La renovación automática está desactivada. Deberás renovar manualmente el año próximo.")
+        else:
+            fecha_next = (datetime.now() + timedelta(days=30)).strftime("%d de %B de %Y")
+            st.info(f"Tu suscripción mensual se renovará automáticamente el {fecha_next}. Puedes cancelar en cualquier momento.")
+
     with c_der:
         if st.session_state.info_plan_actual:
             info = st.session_state.info_plan_actual
-            st.markdown(f'''
-            <div class="plan-card">
-                <h2>{st.session_state.plan_seleccionado}</h2>
-                <p><i>{info['e']}</i></p>
-            </div>''', unsafe_allow_html=True)
-            for b in info['b']: st.write(b)
-            
-        st.divider()
+            st.markdown(f'''<div class="plan-card"><h2>{st.session_state.plan_seleccionado}</h2></div>''', unsafe_allow_html=True)
         st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
         if st.button("Suscribirme"): 
             st.session_state.usuario_registrado = True
