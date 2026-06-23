@@ -37,12 +37,34 @@ def obtener_data_planes(perfil):
         }
 
 # --- Estilos CSS ---
-st.markdown("""<style>.plan-card { background-color: #0e1117; padding: 25px; border-radius: 15px; border: 1px solid #333; } h2 { margin-top: 0 !important; } .stButton>button { width: 100%; } .stLinkButton>a { width: 100%; }</style>""", unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    .plan-card { background-color: #0e1117; padding: 25px; border-radius: 15px; border: 1px solid #333; }
+    h2 { margin-top: 0 !important; }
+    .stButton>button { width: 100%; }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- HEADER: Botones de acceso ---
+if not st.session_state.usuario_registrado and st.session_state.step != "registro":
+    _, col_btn = st.columns([10, 2])
+    with col_btn:
+        with st.popover("Acceder", help="Iniciar sesión o registrarse"):
+            st.markdown("### Iniciar sesión o registrarse")
+            st.button("Continuar con Google")
+            st.button("Continuar con Apple")
+            st.write("---")
+            st.text_input("Correo electrónico")
+            if st.button("Continuar"):
+                st.session_state.usuario_registrado = True
+                st.rerun()
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
     if os.path.exists("logo.png"):
-        _, c2, _ = st.columns([2, 1, 2]); with c2: st.image("logo.png", width=200)
+        _, c2, _ = st.columns([2, 1, 2]) 
+        with c2: 
+            st.image("logo.png", width=200) 
     st.markdown("<h1 style='text-align: center;'>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>¿Por dónde quieres empezar hoy?</h3>", unsafe_allow_html=True)
     _, col_centro, _ = st.columns([1, 1.5, 1])
@@ -51,25 +73,22 @@ if st.session_state.step == "inicio":
         if st.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "chat"; st.rerun()
         if st.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "chat"; st.rerun()
 
-# --- CHAT LIBRE ---
+# --- CHAT ---
 elif st.session_state.step == "chat":
     st.write("### Área de trabajo")
-    if st.button("Enviar mensaje a la IA"):
+    if st.button("Enviar mensaje"):
         st.session_state.mensajes_usados += 1
         if st.session_state.mensajes_usados >= 5:
-            st.warning("Has alcanzado tu límite gratuito. Por favor, regístrate para continuar.")
+            st.warning("Has alcanzado tu límite diario. Regístrate para continuar.")
             st.session_state.step = "registro"; st.rerun()
-    if st.button("Cerrar sesión/Volver"): st.session_state.step = "inicio"; st.rerun()
+    if st.button("Cerrar sesión"): st.session_state.usuario_registrado = False; st.session_state.step = "inicio"; st.rerun()
 
-# --- PANTALLA DE REGISTRO ---
+# --- REGISTRO ---
 elif st.session_state.step == "registro":
-    st.markdown("### ¡Regístrate para seguir explorando!")
+    st.markdown("### Regístrate para continuar")
     st.link_button("Continuar con Google", "https://accounts.google.com")
     st.link_button("Continuar con Apple", "https://appleid.apple.com")
-    st.text_input("Correo electrónico")
-    if st.button("Finalizar Registro"):
-        st.session_state.usuario_registrado = True
-        st.session_state.step = "planes"; st.rerun()
+    if st.button("Ya me registré"): st.session_state.step = "planes"; st.rerun()
 
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
@@ -83,14 +102,28 @@ elif st.session_state.step == "planes":
             st.subheader(titulo)
             p = info['a'] if st.session_state.es_anual else info['m']
             st.write(f"**{p} MXN {'/año' if st.session_state.es_anual else '/mes'}**")
+            st.caption(info['e'])
+            for b in info['b']: st.write(b)
             if st.button("ELEGIR", key=titulo): 
                 st.session_state.plan_seleccionado = titulo
                 st.session_state.precio_seleccionado = f"{p} MXN {'/año' if st.session_state.es_anual else '/mes'}"
                 st.session_state.info_plan_actual = info
                 st.session_state.step = "pago"; st.rerun()
+    if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
 
 # --- 3. PANTALLA DE PAGO ---
 elif st.session_state.step == "pago":
     st.markdown("<h1>Configura tu plan</h1>", unsafe_allow_html=True)
-    if st.button("Suscribirme"): st.session_state.step = "chat_pro"; st.rerun()
+    c_izq, c_der = st.columns([1, 1])
+    with c_izq:
+        st.subheader("Método de pago")
+        st.text_input("Número de tarjeta")
+        c1, c2 = st.columns(2)
+        c1.text_input("Fecha de caducidad")
+        c2.text_input("Código de seguridad")
+    with c_der:
+        if st.session_state.info_plan_actual:
+            st.markdown(f'''<div class="plan-card"><h2>{st.session_state.plan_seleccionado}</h2></div>''', unsafe_allow_html=True)
+        st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
+        if st.button("Suscribirme"): st.session_state.usuario_registrado = True; st.session_state.step = "chat"; st.rerun()
     if st.button("← Volver a planes"): st.session_state.step = "planes"; st.rerun()
