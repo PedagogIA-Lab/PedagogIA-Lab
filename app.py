@@ -24,7 +24,13 @@ st.markdown("""
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
+    if os.path.exists("logo.png"):
+        _, c2, _ = st.columns([1, 2, 1]) 
+        with c2: st.image("logo.png", use_container_width=True)
+        
     st.markdown("<h1>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
+    st.markdown("<h3>¿Por dónde quieres empezar hoy?</h3>", unsafe_allow_html=True)
+    
     _, col_centro, _ = st.columns([0.5, 2, 0.5])
     with col_centro:
         if st.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
@@ -34,9 +40,12 @@ if st.session_state.step == "inicio":
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
     st.markdown(f"<h1>Planes para {st.session_state.perfil_usuario}</h1>", unsafe_allow_html=True)
+    
+    # Selector de facturación
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
     is_anual = (periodo == "Anual")
     
+    # Definición de datos
     if st.session_state.perfil_usuario == "Estudiante":
         data = {
             "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas rápidas.", "b": ["✓ 5 mensajes/día", "✓ Acceso base"]},
@@ -51,9 +60,9 @@ elif st.session_state.step == "planes":
         }
     else:
         data = {
-            "Base": {"m": "$1,999", "a": "$19,190", "e": "Digitalización.", "b": ["10 docentes"]},
-            "Pro": {"m": "$4,999", "a": "$47,990", "e": "Operativa.", "b": ["50 docentes"]},
-            "Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación.", "b": ["Ilimitados"]}
+            "Base": {"m": "$1,999", "a": "$19,190", "e": "Digitalización.", "b": ["10 docentes", "Panel básico"]},
+            "Pro": {"m": "$4,999", "a": "$47,990", "e": "Operativa.", "b": ["50 docentes", "Métricas"]},
+            "Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación.", "b": ["Docentes ilimitados", "Onboarding"]}
         }
 
     cols = st.columns(3)
@@ -61,14 +70,16 @@ elif st.session_state.step == "planes":
         with cols[i]:
             st.markdown(f"### {titulo}")
             p = info['a'] if is_anual else info['m']
-            # --- LÍNEA CORREGIDA ---
             st.markdown(f"{p} MXN {'/año' if is_anual and p != '$0' else '/mes' if p != '$0' else ''}")
+            st.caption(info['e'])
+            for b in info['b']: st.markdown(b)
             
             if st.button("ELEGIR", key=titulo): 
                 st.session_state.plan_seleccionado = titulo
-                st.session_state.precio_seleccionado = f"{p} MXN"
+                st.session_state.precio_seleccionado = f"{p} MXN {'/año' if is_anual else '/mes'}"
                 st.session_state.step = "pago"
                 st.rerun()
+                
     if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
 
 # --- 3. PANTALLA DE PAGO ---
@@ -80,4 +91,21 @@ elif st.session_state.step == "pago":
         st.subheader("Método de pago")
         st.text_input("Número de tarjeta")
         c1, c2 = st.columns(2)
-        c1.text_input("Caducidad")
+        c1.text_input("Fecha de caducidad")
+        c2.text_input("Código de seguridad")
+        st.checkbox("Guardar datos para futuras compras")
+        
+    with col_der:
+        st.subheader(f"Resumen: Plan {st.session_state.plan_seleccionado}")
+        st.metric("Importe a pagar hoy", st.session_state.precio_seleccionado)
+        if st.button("Suscribirme"):
+            st.success("¡Suscripción exitosa!")
+            st.session_state.step = "chat"
+            st.rerun()
+            
+    if st.button("← Volver a planes"): st.session_state.step = "planes"; st.rerun()
+
+elif st.session_state.step == "chat":
+    st.write("¡Bienvenido al chat!")
+    st.chat_input("Escribe tu pregunta...")
+    if st.button("Regresar"): st.session_state.step = "inicio"; st.rerun()
