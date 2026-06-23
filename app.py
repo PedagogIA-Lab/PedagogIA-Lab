@@ -15,23 +15,13 @@ st.markdown("""
     <style>
     h1 { text-align: center; color: white; font-size: 3rem !important; }
     h3 { text-align: center; color: #E0E0E0; font-size: 1.8rem !important; margin-bottom: 30px !important; }
-    
-    /* Botones gigantes y centrados */
     div.stButton > button { 
-        width: 100% !important; 
-        height: 90px !important; 
-        font-size: 28px !important; 
-        font-weight: 800 !important;
-        margin-bottom: 25px !important;
-        border-radius: 12px !important;
-        border: 3px solid #87CEEB !important; 
-        color: white !important; 
-        background-color: #1E1E1E !important;
+        width: 100% !important; height: 90px !important; font-size: 28px !important; 
+        font-weight: 800 !important; margin-bottom: 25px !important;
+        border-radius: 12px !important; border: 3px solid #87CEEB !important; 
+        color: white !important; background-color: #1E1E1E !important;
     }
-    div.stButton > button:hover { 
-        background-color: #87CEEB !important; 
-        color: black !important; 
-    }
+    div.stButton > button:hover { background-color: #87CEEB !important; color: black !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -39,7 +29,7 @@ st.markdown("""
 if st.session_state.step == "inicio":
     st.markdown("<br>", unsafe_allow_html=True)
     if os.path.exists("logo.png"):
-        c_l1, c_l2, c_l3 = st.columns([1, 2, 1]) 
+        _, c_l2, _ = st.columns([1, 2, 1]) 
         with c_l2: st.image("logo.png", use_container_width=True)
     
     st.markdown("<h1>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
@@ -76,11 +66,4 @@ elif st.session_state.step == "planes":
             "Atlas Élite": {"precio": "9,999" if not is_anual else "95,990", "enfoque": "Transformación.", "beneficios": ["Docentes ilimitados", "Integración LMS"]}
         }
 
-    cols = st.columns(3)
-    # Corregido: parentesis cerrado correctamente
-    for i, (titulo, info) in enumerate(data.items()):
-        with cols[i]:
-            st.markdown(f"### {titulo}")
-            st.markdown(f"**$ {info['precio']} MXN / {periodo.lower()}**")
-            st.caption(f"*{info['enfoque']}*")
-            for b in info['beneficios']: st.markdown(f"
+    cols = st.columns
