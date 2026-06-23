@@ -13,48 +13,86 @@ if "precio_seleccionado" not in st.session_state: st.session_state.precio_selecc
 if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None
 if "usuario_registrado" not in st.session_state: st.session_state.usuario_registrado = False
 if "es_anual" not in st.session_state: st.session_state.es_anual = False
-
-# --- HEADER: Botones de acceso (Redirección Externa) ---
-# En una app real, aquí pondrías las URLs de tu Auth Provider
-if not st.session_state.usuario_registrado:
-    _, col_btn = st.columns([10, 2])
-    with col_btn:
-        with st.popover("Acceder"):
-            st.markdown("### Iniciar sesión")
-            # Reemplaza estas URLs con las de tu proveedor (Firebase, Auth0, Supabase, etc.)
-            st.link_button("Continuar con Google", "https://accounts.google.com/signin")
-            st.link_button("Continuar con Apple", "https://appleid.apple.com/")
-            st.link_button("Continuar con teléfono", "https://tu-servicio-auth.com/telefono")
-            
-            st.write("---")
-            email = st.text_input("Ingresa tu correo")
-            if st.button("Continuar con correo"):
-                st.warning("Redirigiendo a pasarela de correo...")
-                # Aquí iría tu lógica de redirección a tu página de login específica
+if "metodo_acceso" not in st.session_state: st.session_state.metodo_acceso = None
 
 # --- Definición Global de Datos ---
 def obtener_data_planes(perfil):
     if perfil == "Estudiante":
         return {
-            "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas y dudas rápidas.", "b": ["✓ 5 mensajes diarios", "✓ Acceso al modelo base"]},
-            "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos"]},
-            "Élite": {"m": "$199", "a": "$1990", "e": "Preparación de alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis ILIMITADO"]}
+            "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas y dudas rápidas.", "b": ["✓ 5 mensajes diarios con Sócrates", "✓ Acceso al modelo base", "✓ Soporte para conceptos generales"]},
+            "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal, siempre disponible.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos (Hasta 5 fotos/día)", "✓ Memoria de contexto", "✓ Respuestas más detalladas"]},
+            "Élite": {"m": "$199", "a": "$1990", "e": "Preparación académica de alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis ILIMITADO", "✓ Generación de cuestionarios y resúmenes", "✓ Reporte semanal de temas reforzados", "✓ Funciones experimentales"]}
         }
-    # ... (resta de tu lógica de planes igual que antes)
-    return {}
+    elif perfil == "Maestro":
+        return {
+            "Base": {"m": "$0", "a": "$0", "e": "Para probar la capacidad de Minerva.", "b": ["✓ 5 mensajes diarios con Minerva", "✓ Generación de planeaciones simples", "✓ Acceso a conceptos pedagógicos básicos"]},
+            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización de tiempo en planeación diaria.", "b": ["✓ Mensajes Ilimitados", "✓ Creación de secuencias didácticas completas", "✓ Rúbricas de evaluación personalizables", "✓ Adaptación de contenidos"]},
+            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión pedagógica integral y alto rendimiento.", "b": ["✓ Todo lo del Pro", "✓ Exámenes y cuestionarios automáticos", "✓ Materiales didácticos (tablas, cronogramas)", "✓ Análisis de retroalimentación", "✓ Soporte prioritario"]}
+        }
+    else:
+        return {
+            "Atlas Base": {"m": "$1,999", "a": "$19,190", "e": "Implementación de la suite en hasta 10 docentes.", "b": ["✓ Estandarización de procesos de planeación", "✓ Panel administrativo de actividad"]},
+            "Atlas Pro": {"m": "$4,999", "a": "$47,990", "e": "Escala hasta 50 docentes con métricas.", "b": ["✓ Dashboard de desempeño", "✓ Biblioteca institucional compartida", "✓ Soporte técnico dedicado"]},
+            "Atlas Élite": {"m": "$9,999", "a": "$95,990", "e": "Gestión integral y alto impacto.", "b": ["✓ Docentes ilimitados", "✓ White Label personalizado", "✓ Integración LMS/ERP", "✓ Capacitación certificada", "✓ Analítica avanzada"]}
+        }
 
 # --- Estilos CSS ---
-st.markdown("<style>.plan-card { background-color: #0e1117; padding: 25px; border-radius: 15px; border: 1px solid #333; }</style>", unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    .plan-card { background-color: #0e1117; padding: 25px; border-radius: 15px; border: 1px solid #333; }
+    h2 { margin-top: 0 !important; }
+    .stButton>button { width: 100%; }
+    </style>
+""", unsafe_allow_html=True)
 
-# --- FLUJO PRINCIPAL ---
+# --- HEADER: Botones de acceso ---
+if not st.session_state.usuario_registrado:
+    _, col_btn = st.columns([10, 2])
+    with col_btn:
+        with st.popover("Acceder", help="Iniciar sesión o registrarse"):
+            st.markdown("### Iniciar sesión o registrarse")
+            st.link_button("Continuar con Google", "https://accounts.google.com/signin")
+            st.link_button("Continuar con Apple", "https://appleid.apple.com/")
+            st.link_button("Continuar con teléfono", "https://example.com/login-telefono")
+            st.write("---")
+            email = st.text_input("O ingresa tu correo electrónico")
+            if st.button("Continuar"):
+                st.session_state.metodo_acceso = f"Correo: {email}"
+                st.session_state.usuario_registrado = True
+                st.rerun()
+
+# --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
+    if os.path.exists("logo.png"):
+        _, c2, _ = st.columns([2, 1, 2]) 
+        with c2: st.image("logo.png", width=200) 
     st.markdown("<h1 style='text-align: center;'>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>¿Por dónde quieres empezar hoy?</h3>", unsafe_allow_html=True)
     _, col_centro, _ = st.columns([1, 1.5, 1])
     with col_centro:
         if st.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
+        if st.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
+        if st.button("Colegio"): st.session_state.perfil_usuario = "Colegio"; st.session_state.step = "planes"; st.rerun()
 
+# --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
-    # ... (Aquí va toda tu lógica de visualización de planes)
+    st.markdown(f"<h1>Planes para {st.session_state.perfil_usuario}</h1>", unsafe_allow_html=True)
+    periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
+    st.session_state.es_anual = (periodo == "Anual")
+    data = obtener_data_planes(st.session_state.perfil_usuario)
+    cols = st.columns(3)
+    for i, (titulo, info) in enumerate(data.items()):
+        with cols[i]:
+            st.subheader(titulo)
+            p = info['a'] if st.session_state.es_anual else info['m']
+            st.write(f"**{p} MXN {'/año' if st.session_state.es_anual else '/mes'}**")
+            st.caption(info['e'])
+            for b in info['b']: st.write(b)
+            if st.button("ELEGIR", key=titulo): 
+                st.session_state.plan_seleccionado = titulo
+                st.session_state.precio_seleccionado = f"{p} MXN {'/año' if st.session_state.es_anual else '/mes'}"
+                st.session_state.info_plan_actual = info
+                st.session_state.step = "pago"; st.rerun()
     if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
 
 # --- 3. PANTALLA DE PAGO ---
@@ -64,8 +102,14 @@ elif st.session_state.step == "pago":
     with c_izq:
         st.subheader("Método de pago")
         st.text_input("Número de tarjeta")
-        # Lógica de fecha de renovación igual a la anterior
-    with c_der:
-        if st.button("Suscribirme"): 
-            st.session_state.usuario_registrado = True
-            st.session_state.step = "chat"; st.rerun()
+        c1, c2 = st.columns(2)
+        c1.text_input("Fecha de caducidad")
+        c2.text_input("Código de seguridad")
+        st.divider()
+        if st.session_state.es_anual:
+            fecha_next = (datetime.now() + timedelta(days=365)).strftime("%d de %B de %Y")
+            auto_renew = st.checkbox("Activar renovación automática anual", value=True)
+            if auto_renew:
+                st.success(f"Tu suscripción se renovará automáticamente el {fecha_next}.")
+            else:
+                st.warning("La
