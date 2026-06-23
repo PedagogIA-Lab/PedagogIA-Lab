@@ -11,7 +11,7 @@ if "plan_seleccionado" not in st.session_state: st.session_state.plan_selecciona
 if "precio_seleccionado" not in st.session_state: st.session_state.precio_seleccionado = None
 if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None
 
-# --- Definición Global de Datos (Actualizada con todas las características) ---
+# --- Definición Global de Datos ---
 def obtener_data_planes(perfil):
     if perfil == "Estudiante":
         return {
@@ -42,11 +42,15 @@ st.markdown("""
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
+    # Logo más pequeño centrado
     if os.path.exists("logo.png"):
-        _, c2, _ = st.columns([1, 2, 1]) 
-        with c2: st.image("logo.png", use_container_width=True)
-    st.markdown("<h1>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
-    _, col_centro, _ = st.columns([1, 2, 1])
+        _, c2, _ = st.columns([2, 1, 2]) 
+        with c2: st.image("logo.png", width=200) 
+        
+    st.markdown("<h1 style='text-align: center;'>Bienvenido a PedagogIA Lab</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>¿Por dónde quieres empezar hoy?</h3>", unsafe_allow_html=True)
+    
+    _, col_centro, _ = st.columns([1, 1.5, 1])
     with col_centro:
         if st.button("Estudiante"): st.session_state.perfil_usuario = "Estudiante"; st.session_state.step = "planes"; st.rerun()
         if st.button("Maestro"): st.session_state.perfil_usuario = "Maestro"; st.session_state.step = "planes"; st.rerun()
