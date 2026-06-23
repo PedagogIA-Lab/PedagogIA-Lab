@@ -13,6 +13,7 @@ if "precio_seleccionado" not in st.session_state: st.session_state.precio_selecc
 if "info_plan_actual" not in st.session_state: st.session_state.info_plan_actual = None
 if "usuario_registrado" not in st.session_state: st.session_state.usuario_registrado = False
 if "es_anual" not in st.session_state: st.session_state.es_anual = False
+if "metodo_acceso" not in st.session_state: st.session_state.metodo_acceso = None
 
 # --- Definición Global de Datos ---
 def obtener_data_planes(perfil):
@@ -50,11 +51,24 @@ if not st.session_state.usuario_registrado:
     with col_btn:
         with st.popover("Acceder", help="Iniciar sesión o registrarse"):
             st.markdown("### Iniciar sesión o registrarse")
-            st.button("Continuar con Google")
-            st.button("Continuar con Apple")
+            
+            if st.button("Continuar con Google"):
+                st.session_state.metodo_acceso = "Google"
+                st.session_state.usuario_registrado = True
+                st.rerun()
+            if st.button("Continuar con Apple"):
+                st.session_state.metodo_acceso = "Apple"
+                st.session_state.usuario_registrado = True
+                st.rerun()
+            if st.button("Continuar con teléfono"):
+                st.session_state.metodo_acceso = "Teléfono"
+                st.session_state.usuario_registrado = True
+                st.rerun()
+            
             st.write("---")
-            st.text_input("Correo electrónico")
+            email = st.text_input("O ingresa tu correo electrónico")
             if st.button("Continuar"):
+                st.session_state.metodo_acceso = "Correo: " + email
                 st.session_state.usuario_registrado = True
                 st.rerun()
 
@@ -105,7 +119,6 @@ elif st.session_state.step == "pago":
         c2.text_input("Código de seguridad")
         st.divider()
         
-        # Lógica de Renovación Automática
         if st.session_state.es_anual:
             fecha_next = (datetime.now() + timedelta(days=365)).strftime("%d de %B de %Y")
             auto_renew = st.checkbox("Activar renovación automática anual", value=True)
@@ -130,6 +143,7 @@ elif st.session_state.step == "pago":
 
 elif st.session_state.step == "chat":
     st.write("¡Bienvenido a tu área de trabajo!")
+    st.info(f"Sesión iniciada a través de: **{st.session_state.metodo_acceso}**")
     if st.button("Cerrar sesión"): 
         st.session_state.usuario_registrado = False
         st.session_state.step = "inicio"; st.rerun()
