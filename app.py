@@ -7,8 +7,6 @@ st.set_page_config(page_title="PedagogIA Lab", layout="wide")
 # --- Inicialización de variables ---
 if "step" not in st.session_state: st.session_state.step = "inicio"
 if "perfil_usuario" not in st.session_state: st.session_state.perfil_usuario = None
-if "mensajes_usados" not in st.session_state: st.session_state.mensajes_usados = 0
-if "plan_actual" not in st.session_state: st.session_state.plan_actual = "Gratis"
 
 # --- Estilos CSS (Botones Gigantes y Accesibles) ---
 st.markdown("""
@@ -27,7 +25,6 @@ st.markdown("""
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
-    st.markdown("<br>", unsafe_allow_html=True)
     if os.path.exists("logo.png"):
         _, c_l2, _ = st.columns([1, 2, 1]) 
         with c_l2: st.image("logo.png", use_container_width=True)
@@ -44,48 +41,30 @@ if st.session_state.step == "inicio":
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
     st.markdown(f"<h1>Planes para {st.session_state.perfil_usuario}</h1>", unsafe_allow_html=True)
-    periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
-    is_anual = (periodo == "Anual")
     
     if st.session_state.perfil_usuario == "Estudiante":
         data = {
-            "Explorador": {"precio": "0", "enfoque": "Para tareas rápidas.", "beneficios": ["Paso 1: Acceso inicial.", "Paso 2: 5 mensajes/día (Sócrates).", "Paso 3: Conceptos básicos."]},
-            "Pro": {"precio": "99" if not is_anual else "990", "enfoque": "Tu tutor personal.", "beneficios": ["Paso 1: Mensajes ilimitados.", "Paso 2: Análisis (5 fotos/día).", "Paso 3: Memoria de contexto.", "Paso 4: Respuestas detalladas."]},
-            "Élite": {"precio": "199" if not is_anual else "1990", "enfoque": "Alto rendimiento.", "beneficios": ["Paso 1: Todo lo Pro.", "Paso 2: Análisis ILIMITADO.", "Paso 3: Quizzes automáticos.", "Paso 4: Reportes semanales."]}
+            "Explorador (Gratis)": {"precio": "$0", "enfoque": "Para tareas y dudas rápidas.", "beneficios": ["✓ 5 mensajes diarios (Sócrates).", "✓ Acceso al modelo base.", "✓ Soporte para conceptos generales."]},
+            "Pro (Intermedio)": {"precio": "$99/mes ($990/año)", "enfoque": "Tu tutor personal, siempre disponible.", "beneficios": ["✓ Mensajes Ilimitados.", "✓ Análisis de archivos (5 fotos/día).", "✓ Memoria de contexto.", "✓ Respuestas detalladas."]},
+            "Élite (Avanzado)": {"precio": "$199/mes ($1990/año)", "enfoque": "Preparación académica de alto nivel.", "beneficios": ["✓ Todo del Plan Pro.", "✓ Análisis ILIMITADO.", "✓ Cuestionarios y resúmenes.", "✓ Reporte semanal reforzado."]}
         }
     elif st.session_state.perfil_usuario == "Maestro":
         data = {
-            "Base": {"precio": "0", "enfoque": "Probar Minerva.", "beneficios": ["Paso 1: Entrada al asistente.", "Paso 2: Planeación simple.", "Paso 3: Consultas básicas."]},
-            "Pro": {"precio": "149" if not is_anual else "1490", "enfoque": "Optimización.", "beneficios": ["Paso 1: Mensajes ilimitados.", "Paso 2: Secuencias didácticas.", "Paso 3: Rúbricas a medida.", "Paso 4: Adaptación de ritmos."]},
-            "Élite": {"precio": "299" if not is_anual else "2990", "enfoque": "Gestión integral.", "beneficios": ["Paso 1: Todo lo Pro.", "Paso 2: Exámenes automáticos.", "Paso 3: Materiales didácticos.", "Paso 4: Retroalimentación."]}
+            "Base (Gratis)": {"precio": "$0", "enfoque": "Para probar la capacidad de Minerva.", "beneficios": ["✓ 5 mensajes diarios (Minerva).", "✓ Generación de planeaciones simples.", "✓ Conceptos pedagógicos básicos."]},
+            "Pro (Intermedio)": {"precio": "$149/mes ($1490/año)", "enfoque": "Optimización de tiempo en planeación.", "beneficios": ["✓ Mensajes Ilimitados.", "✓ Secuencias didácticas completas.", "✓ Rúbricas personalizables.", "✓ Adaptación de ritmos de aprendizaje."]},
+            "Élite (Avanzado)": {"precio": "$299/mes ($2990/año)", "enfoque": "Gestión pedagógica integral.", "beneficios": ["✓ Todo del Plan Pro.", "✓ Exámenes automáticos con clave.", "✓ Materiales didácticos (tablas/listas).", "✓ Soporte prioritario."]}
         }
     else: # Colegio
-        data = {
-            "Atlas Base": {"precio": "1,999" if not is_anual else "19,190", "enfoque": "Arranque docente.", "beneficios": ["Paso 1: 10 docentes.", "Paso 2: Planeación estándar.", "Paso 3: Panel administrativo."]},
-            "Atlas Pro": {"precio": "4,999" if not is_anual else "47,990", "enfoque": "Optimización operativa.", "beneficios": ["Paso 1: Hasta 50 docentes.", "Paso 2: Dashboard de métricas.", "Paso 3: Biblioteca compartida.", "Paso 4: Soporte técnico."]},
-            "Atlas Élite": {"precio": "9,999" if not is_anual else "95,990", "enfoque": "Transformación total.", "beneficios": ["Paso 1: Docentes ilimitados.", "Paso 2: Personalización de marca.", "Paso 3: Integración LMS/ERP.", "Paso 4: Onboarding certificado."]}
-        }
+        data = {"Atlas Base": {"precio": "$1,999/mes", "enfoque": "Digitalización.", "beneficios": ["10 docentes", "Planeación estandarizada"]}, "Atlas Pro": {"precio": "$4,999/mes", "enfoque": "Operativa.", "beneficios": ["50 docentes", "Métricas"]}, "Atlas Élite": {"precio": "$9,999/mes", "enfoque": "Transformación.", "beneficios": ["Docentes ilimitados", "Onboarding certificado"]}}
 
     cols = st.columns(3)
     for i, (titulo, info) in enumerate(data.items()):
         with cols[i]:
             st.markdown(f"### {titulo}")
-            st.markdown(f"**$ {info['precio']} MXN / {periodo.lower()}**")
+            st.markdown(f"**{info['precio']}**")
             st.caption(f"*{info['enfoque']}*")
-            st.write("---")
-            for b in info['beneficios']:
-                st.markdown(f"{b}")
-            if st.button(f"ELEGIR {titulo.upper()}", key=titulo):
-                st.session_state.plan_actual = titulo
-                st.session_state.step = "chat"
-                st.rerun()
+            for b in info['beneficios']: st.markdown(b)
+            if st.button(f"ELEGIR {titulo.split()[0].upper()}", key=titulo):
+                st.write(f"Has seleccionado {titulo}")
 
     if st.button("← REGRESAR AL INICIO"): st.session_state.step = "inicio"; st.rerun()
-
-# --- 3. PANTALLA DE CHAT ---
-elif st.session_state.step == "chat":
-    user_input = st.chat_input("Escribe tu pregunta...")
-    if user_input:
-        st.session_state.mensajes_usados += 1
-        st.write(f"Respuesta de IA ({st.session_state.mensajes_usados}/5)")
-    if st.button("Regresar al Inicio"): st.session_state.step = "inicio"; st.rerun()
