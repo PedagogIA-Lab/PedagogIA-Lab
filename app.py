@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 # ── Configuración de página ──────────────────────────────────────────────────
-st.set_page_config(page_title="PedagogIA Lab", layout="centered")
+st.set_page_config(page_title="PedagogIA Lab", layout="wide")
 
 # --- Inicialización de variables ---
 if "step" not in st.session_state: st.session_state.step = "inicio"
@@ -34,22 +34,28 @@ if st.session_state.step == "inicio":
 
 # --- 2. PANTALLA DE PLANES ---
 elif st.session_state.step == "planes":
-    st.markdown("<h1>Elige tu Plan</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1>Planes para {st.session_state.perfil_usuario}</h1>", unsafe_allow_html=True)
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
     is_anual = (periodo == "Anual")
     
-    # Base de datos de planes detallada
+    # Base de datos completa con los textos desglosados paso a paso
     if st.session_state.perfil_usuario == "Estudiante":
         data = {
-            "Explorador": {"precio": "0", "enfoque": "Para tareas y dudas rápidas.", "beneficios": ["5 mensajes diarios con Sócrates", "Acceso al modelo base", "Soporte para conceptos generales"]},
-            "Pro": {"precio": "99" if not is_anual else "990", "enfoque": "Tu tutor personal, siempre disponible.", "beneficios": ["Mensajes Ilimitados", "Análisis de archivos (Hasta 5 fotos/día)", "Memoria de contexto entre sesiones", "Respuestas más detalladas"]},
-            "Élite": {"precio": "199" if not is_anual else "1990", "enfoque": "Preparación académica de alto nivel.", "beneficios": ["Todo lo del Plan Pro", "Análisis de archivos ILIMITADO", "Generación de cuestionarios y resúmenes", "Reporte semanal de temas reforzados", "Acceso a funciones experimentales"]}
+            "Explorador": {"precio": "0", "enfoque": "Para tareas y dudas rápidas.", "beneficios": ["Paso 1: Acceso inicial.", "Paso 2: 5 mensajes diarios (Sócrates).", "Paso 3: Conceptos básicos."]},
+            "Pro": {"precio": "99" if not is_anual else "990", "enfoque": "Tutor personal disponible.", "beneficios": ["Paso 1: Mensajes ilimitados.", "Paso 2: Análisis (5 fotos/día).", "Paso 3: Memoria de contexto.", "Paso 4: Respuestas detalladas."]},
+            "Élite": {"precio": "199" if not is_anual else "1990", "enfoque": "Alto rendimiento académico.", "beneficios": ["Paso 1: Todo nivel Pro.", "Paso 2: Análisis ILIMITADO.", "Paso 3: Cuestionarios automáticos.", "Paso 4: Reportes semanales."]}
         }
-    else: # Maestro
+    elif st.session_state.perfil_usuario == "Maestro":
         data = {
-            "Base": {"precio": "0", "enfoque": "Para probar la capacidad de Minerva.", "beneficios": ["5 mensajes diarios con Minerva", "Generación de planeaciones simples", "Acceso a conceptos pedagógicos básicos"]},
-            "Pro": {"precio": "149" if not is_anual else "1490", "enfoque": "Optimización de tiempo en planeación diaria.", "beneficios": ["Mensajes Ilimitados", "Creación de secuencias didácticas completas", "Generación de rúbricas personalizables", "Adaptación de contenidos"]},
-            "Élite": {"precio": "299" if not is_anual else "2990", "enfoque": "Gestión pedagógica integral y alto rendimiento.", "beneficios": ["Todo lo del Plan Pro", "Creación de exámenes automáticos con claves", "Generación de materiales didácticos (tablas, cronogramas)", "Análisis de retroalimentación", "Soporte prioritario"]}
+            "Base": {"precio": "0", "enfoque": "Probar capacidad de Minerva.", "beneficios": ["Paso 1: Entrada al asistente.", "Paso 2: Planeaciones simples.", "Paso 3: Consultas pedagógicas."]},
+            "Pro": {"precio": "149" if not is_anual else "1490", "enfoque": "Optimización de tiempo.", "beneficios": ["Paso 1: Mensajes ilimitados.", "Paso 2: Secuencias didácticas.", "Paso 3: Rúbricas a medida.", "Paso 4: Adaptación de ritmos."]},
+            "Élite": {"precio": "299" if not is_anual else "2990", "enfoque": "Gestión pedagógica integral.", "beneficios": ["Paso 1: Todo nivel Pro.", "Paso 2: Exámenes con clave.", "Paso 3: Materiales (tablas).", "Paso 4: Retroalimentación analítica."]}
+        }
+    else: # Colegio
+        data = {
+            "Atlas Base": {"precio": "1,999" if not is_anual else "19,190", "enfoque": "Digitalización docente.", "beneficios": ["Paso 1: 10 docentes.", "Paso 2: Planeación estandarizada.", "Paso 3: Panel administrativo."]},
+            "Atlas Pro": {"precio": "4,999" if not is_anual else "47,990", "enfoque": "Optimización operativa.", "beneficios": ["Paso 1: Hasta 50 docentes.", "Paso 2: Dashboard de métricas.", "Paso 3: Biblioteca compartida.", "Paso 4: Soporte técnico."]},
+            "Atlas Élite": {"precio": "9,999" if not is_anual else "95,990", "enfoque": "Transformación total.", "beneficios": ["Paso 1: Docentes ilimitados.", "Paso 2: Personalización de marca.", "Paso 3: Integración LMS/ERP.", "Paso 4: Onboarding certificado."]}
         }
 
     cols = st.columns(3)
@@ -59,7 +65,7 @@ elif st.session_state.step == "planes":
             st.markdown(f"**$ {info['precio']} MXN / {periodo.lower()}**")
             st.caption(f"*{info['enfoque']}*")
             st.write("---")
-            for b in info['beneficios']: st.markdown(f"✓ {b}")
+            for b in info['beneficios']: st.markdown(f"{b}")
             if st.button(f"ELEGIR {titulo.upper()}", key=titulo):
                 st.session_state.plan_actual = titulo
                 st.session_state.step = "chat"
@@ -69,8 +75,9 @@ elif st.session_state.step == "planes":
 
 # --- 3. PANTALLA DE CHAT ---
 elif st.session_state.step == "chat":
-    if st.session_state.plan_actual not in ["Pro", "Élite", "Base"] and st.session_state.mensajes_usados >= 5:
-        st.error("⚠️ Has alcanzado tu límite diario de 5 mensajes.")
+    # Lógica de bloqueo para plan gratuito
+    if st.session_state.plan_actual == "Gratis" and st.session_state.mensajes_usados >= 5:
+        st.error("⚠️ Has alcanzado tu límite de 5 mensajes.")
         if st.button("VER PLANES"): st.session_state.step = "planes"; st.rerun()
     else:
         user_input = st.chat_input("Escribe tu pregunta...")
