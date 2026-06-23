@@ -59,22 +59,28 @@ elif st.session_state.step == "planes":
     
     if st.session_state.perfil_usuario == "Estudiante":
         data = {
-            "Explorador": {"precio": "0", "enfoque": "Para tareas y dudas rápidas.", "beneficios": ["Paso 1: Acceso inicial.", "Paso 2: 5 mensajes/día (Sócrates).", "Paso 3: Conceptos básicos."]},
-            "Pro": {"precio": "99" if not is_anual else "990", "enfoque": "Tutor personal disponible.", "beneficios": ["Paso 1: Mensajes ilimitados.", "Paso 2: Análisis (5 fotos/día).", "Paso 3: Memoria de contexto.", "Paso 4: Respuestas detalladas."]},
-            "Élite": {"precio": "199" if not is_anual else "1990", "enfoque": "Alto rendimiento académico.", "beneficios": ["Paso 1: Todo lo Pro.", "Paso 2: Análisis ILIMITADO.", "Paso 3: Cuestionarios automáticos.", "Paso 4: Reportes semanales."]}
+            "Explorador": {"precio": "0", "enfoque": "Para tareas rápidas.", "beneficios": ["5 mensajes/día", "Modelo base"]},
+            "Pro": {"precio": "99" if not is_anual else "990", "enfoque": "Tutor personal.", "beneficios": ["Mensajes ilimitados", "Análisis de archivos"]},
+            "Élite": {"precio": "199" if not is_anual else "1990", "enfoque": "Alto rendimiento.", "beneficios": ["Todo Pro", "Quizzes automáticos"]}
         }
     elif st.session_state.perfil_usuario == "Maestro":
         data = {
-            "Base": {"precio": "0", "enfoque": "Probar capacidad de Minerva.", "beneficios": ["Paso 1: Entrada al asistente.", "Paso 2: Planeaciones simples.", "Paso 3: Consultas básicas."]},
-            "Pro": {"precio": "149" if not is_anual else "1490", "enfoque": "Optimización de tiempo.", "beneficios": ["Paso 1: Mensajes ilimitados.", "Paso 2: Secuencias didácticas.", "Paso 3: Rúbricas a medida.", "Paso 4: Adaptación de ritmos."]},
-            "Élite": {"precio": "299" if not is_anual else "2990", "enfoque": "Gestión pedagógica integral.", "beneficios": ["Paso 1: Todo lo Pro.", "Paso 2: Exámenes con clave.", "Paso 3: Materiales didácticos.", "Paso 4: Retroalimentación."]}
+            "Base": {"precio": "0", "enfoque": "Probar Minerva.", "beneficios": ["5 mensajes/día", "Planeación simple"]},
+            "Pro": {"precio": "149" if not is_anual else "1490", "enfoque": "Optimización.", "beneficios": ["Mensajes ilimitados", "Rúbricas"]},
+            "Élite": {"precio": "299" if not is_anual else "2990", "enfoque": "Gestión integral.", "beneficios": ["Todo Pro", "Exámenes automáticos"]}
         }
     else: # Colegio
         data = {
-            "Atlas Base": {"precio": "1,999" if not is_anual else "19,190", "enfoque": "Digitalización docente.", "beneficios": ["Paso 1: 10 docentes.", "Paso 2: Planeación estándar.", "Paso 3: Panel administrativo."]},
-            "Atlas Pro": {"precio": "4,999" if not is_anual else "47,990", "enfoque": "Optimización operativa.", "beneficios": ["Paso 1: Hasta 50 docentes.", "Paso 2: Dashboard de métricas.", "Paso 3: Biblioteca compartida.", "Paso 4: Soporte técnico."]},
-            "Atlas Élite": {"precio": "9,999" if not is_anual else "95,990", "enfoque": "Transformación total.", "beneficios": ["Paso 1: Docentes ilimitados.", "Paso 2: Marca personalizada.", "Paso 3: Integración LMS/ERP.", "Paso 4: Onboarding certificado."]}
+            "Atlas Base": {"precio": "1,999" if not is_anual else "19,190", "enfoque": "Arranque.", "beneficios": ["10 docentes", "Panel básico"]},
+            "Atlas Pro": {"precio": "4,999" if not is_anual else "47,990", "enfoque": "Operativa.", "beneficios": ["50 docentes", "Métricas"]},
+            "Atlas Élite": {"precio": "9,999" if not is_anual else "95,990", "enfoque": "Transformación.", "beneficios": ["Docentes ilimitados", "Integración LMS"]}
         }
 
     cols = st.columns(3)
-    for i, (titulo
+    # Corregido: parentesis cerrado correctamente
+    for i, (titulo, info) in enumerate(data.items()):
+        with cols[i]:
+            st.markdown(f"### {titulo}")
+            st.markdown(f"**$ {info['precio']} MXN / {periodo.lower()}**")
+            st.caption(f"*{info['enfoque']}*")
+            for b in info['beneficios']: st.markdown(f"
