@@ -8,19 +8,19 @@ st.set_page_config(page_title="PedagogIA Lab", layout="centered")
 if "step" not in st.session_state: st.session_state.step = "inicio"
 if "perfil_usuario" not in st.session_state: st.session_state.perfil_usuario = None
 
-# --- Estilos CSS (Tamaños aumentados) ---
+# --- Estilos CSS (Tamaño ajustado para mayor equilibrio) ---
 st.markdown("""
     <style>
-    .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; }
-    h1 { text-align: center; color: white; font-size: 3.5rem !important; margin-bottom: 1.5rem !important; }
-    h3 { text-align: center; color: #E0E0E0; font-size: 2rem !important; margin-bottom: 1rem !important; }
-    .stMarkdown, .stMarkdown p, li { font-size: 1.4rem !important; line-height: 1.6 !important; }
+    .block-container { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+    h1 { text-align: center; color: white; font-size: 2.5rem !important; margin-bottom: 1rem !important; }
+    h3 { text-align: center; color: #E0E0E0; font-size: 1.5rem !important; margin-bottom: 0.8rem !important; }
+    .stMarkdown, .stMarkdown p, li { font-size: 1.1rem !important; line-height: 1.4 !important; }
     div.stButton > button { 
-        width: 100% !important; height: 80px !important; font-size: 24px !important; 
-        font-weight: 700 !important; border-radius: 12px !important; 
-        border: 3px solid #87CEEB !important; 
+        width: 100% !important; height: 55px !important; font-size: 18px !important; 
+        font-weight: 600 !important; border-radius: 8px !important; 
+        border: 2px solid #87CEEB !important; 
     }
-    div[role="radiogroup"] label { font-size: 1.8rem !important; font-weight: bold !important; }
+    div[role="radiogroup"] label { font-size: 1.2rem !important; font-weight: bold !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -47,28 +47,4 @@ elif st.session_state.step == "planes":
         data = {
             "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas y dudas rápidas.", "b": ["✓ 5 mensajes diarios con Sócrates", "✓ Acceso al modelo base", "✓ Soporte para conceptos generales"]},
             "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal, siempre disponible.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos (5 fotos/día)", "✓ Memoria de contexto", "✓ Respuestas detalladas"]},
-            "Élite": {"m": "$199", "a": "$1990", "e": "Preparación académica de alto nivel.", "b": ["✓ Todo lo del Plan Pro", "✓ Análisis de archivos ILIMITADO", "✓ Generación de cuestionarios y resúmenes", "✓ Reporte semanal de temas", "✓ Funciones experimentales"]}
-        }
-    elif st.session_state.perfil_usuario == "Maestro":
-        data = {
-            "Base": {"m": "$0", "a": "$0", "e": "Para probar la capacidad de Minerva.", "b": ["✓ 5 mensajes diarios con Minerva", "✓ Generación de planeaciones simples", "✓ Conceptos pedagógicos básicos"]},
-            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización de tiempo en planeación diaria.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias didácticas completas", "✓ Rúbricas de evaluación personalizables", "✓ Adaptación de contenidos"]},
-            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión pedagógica integral.", "b": ["✓ Todo lo del Plan Pro", "✓ Exámenes y cuestionarios automáticos", "✓ Materiales didácticos (tablas, listas)", "✓ Análisis de retroalimentación", "✓ Soporte prioritario"]}
-        }
-    else:
-        data = {"Base": {"m": "$1,999", "a": "$19,190", "e": "Digitalización.", "b": ["10 docentes", "Panel básico"]}, "Pro": {"m": "$4,999", "a": "$47,990", "e": "Operativa.", "b": ["50 docentes", "Métricas"]}, "Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación.", "b": ["Docentes ilimitados", "Onboarding"]}}
-
-    cols = st.columns(3)
-    for i, (titulo, info) in enumerate(data.items()):
-        with cols[i]:
-            st.markdown(f"### {titulo}")
-            p = info['a'] if is_anual else info['m']
-            st.markdown(f"**{p} MXN {'/año' if is_anual and p != '$0' else '/mes' if p != '$0' else ''}**")
-            st.caption(info['e'])
-            for b in info['b']: st.markdown(b)
-            if st.button("ELEGIR", key=titulo): st.session_state.step = "chat"; st.rerun()
-    if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
-
-elif st.session_state.step == "chat":
-    st.chat_input("Escribe tu pregunta...")
-    if st.button("Regresar"): st.session_state.step = "inicio"; st.rerun()
+            "Élite": {"m": "$199", "a": "$1990", "e": "Prepar
