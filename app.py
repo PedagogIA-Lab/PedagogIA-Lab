@@ -35,7 +35,6 @@ st.markdown("""
 
 # --- 1. PANTALLA DE INICIO ---
 if st.session_state.step == "inicio":
-    # Logo más pequeño y centrado superior
     if os.path.exists("logo.png"):
         _, c2, _ = st.columns([1.5, 1, 1.5]) 
         with c2: st.image("logo.png", use_container_width=True)
@@ -55,12 +54,47 @@ elif st.session_state.step == "planes":
     periodo = st.radio("Facturación", ["Mensual", "Anual"], horizontal=True)
     is_anual = (periodo == "Anual")
     
-    # ... (Se mantiene la lógica de los diccionarios 'data' igual que antes)
     if st.session_state.perfil_usuario == "Estudiante":
-        data = {"Explorador": {"m": "$0", "a": "$0", "e": "Para tareas rápidas.", "b": ["✓ 5 mensajes/día", "✓ Acceso base"]},
-                "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos"]},
-                "Élite": {"m": "$199", "a": "$1990", "e": "Alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis ILIMITADO"]}}
+        data = {
+            "Explorador": {"m": "$0", "a": "$0", "e": "Para tareas rápidas.", "b": ["✓ 5 mensajes/día", "✓ Acceso base"]},
+            "Pro": {"m": "$99", "a": "$990", "e": "Tu tutor personal.", "b": ["✓ Mensajes Ilimitados", "✓ Análisis de archivos"]},
+            "Élite": {"m": "$199", "a": "$1990", "e": "Alto nivel.", "b": ["✓ Todo lo del Pro", "✓ Análisis ILIMITADO"]}
+        }
     elif st.session_state.perfil_usuario == "Maestro":
-        data = {"Base": {"m": "$0", "a": "$0", "e": "Para probar Minerva.", "b": ["✓ 5 mensajes/día", "✓ Planeaciones simples"]},
-                "Pro": {"m": "$149", "a": "$1490", "e": "Optimización diaria.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias"]},
-                "Élite": {"m": "$299", "a": "$2990", "e": "Gestión integral.", "b": ["✓ Todo lo del Pro", "✓ Exámenes autom
+        data = {
+            "Base": {"m": "$0", "a": "$0", "e": "Para probar Minerva.", "b": ["✓ 5 mensajes/día", "✓ Planeaciones simples"]},
+            "Pro": {"m": "$149", "a": "$1490", "e": "Optimización diaria.", "b": ["✓ Mensajes Ilimitados", "✓ Secuencias"]},
+            "Élite": {"m": "$299", "a": "$2990", "e": "Gestión integral.", "b": ["✓ Todo lo del Pro", "✓ Exámenes automáticos"]}
+        }
+    else:
+        data = {
+            "Atlas Base": {"m": "$1,999", "a": "$19,190", "e": "Estandarización.", "b": ["✓ Hasta 10 docentes", "✓ Panel admin"]},
+            "Atlas Pro": {"m": "$4,999", "a": "$47,990", "e": "Escalabilidad.", "b": ["✓ Hasta 50 docentes", "✓ Métricas"]},
+            "Atlas Élite": {"m": "$9,999", "a": "$95,990", "e": "Transformación total.", "b": ["✓ Docentes ilimitados", "✓ Integración LMS"]}
+        }
+
+    cols = st.columns(3)
+    for i, (titulo, info) in enumerate(data.items()):
+        with cols[i]:
+            st.markdown(f"### {titulo}")
+            p = info['a'] if is_anual else info['m']
+            # Corregido: f-string correctamente cerrado
+            st.markdown(f"**{p} MXN {'/año' if is_anual else '/mes'}**")
+            st.caption(info['e'])
+            for b in info['b']: st.markdown(b)
+            if st.button("ELEGIR", key=titulo): 
+                st.session_state.plan_seleccionado = titulo
+                st.session_state.precio_seleccionado = f"{p} MXN"
+                st.session_state.step = "pago"; st.rerun()
+    if st.button("← REGRESAR"): st.session_state.step = "inicio"; st.rerun()
+
+# --- 3. PANTALLA DE PAGO / CHAT ---
+elif st.session_state.step == "pago":
+    st.markdown("<h1>Configura tu plan</h1>", unsafe_allow_html=True)
+    if st.button("Simular Pago Exitoso (Pro/Élite)"): st.session_state.step = "chat"; st.rerun()
+    if st.button("← Volver"): st.session_state.step = "planes"; st.rerun()
+
+elif st.session_state.step == "chat":
+    st.write("¡Bienvenido al chat!")
+    st.chat_input("Escribe tu pregunta...")
+    if st.button("Regresar"): st.session_state.step = "inicio"; st.rerun()
